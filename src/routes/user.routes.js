@@ -1,7 +1,7 @@
 import { Router } from "express";
 const userRouter = Router();
 
-// Crear una tarea
+// Crear un usuario
 userRouter.post("/", /* controlador */);
 
 // Obtener todas las tareas
