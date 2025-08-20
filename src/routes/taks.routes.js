@@ -1,19 +1,27 @@
 import { Router } from "express";
+import {
+	createTask,
+	getAllTasks,
+	getTaskById,
+	updateTask,
+	deleteTask
+} from "../controllers/task.controllers.js";
+
 const taskRouter = Router();
 
 // Crear una tarea
-taskRouter.post("/", /* controlador */);
+taskRouter.post("/", createTask);
 
 // Obtener todas las tareas
-taskRouter.get("/", /* controlador */);
+taskRouter.get("/", getAllTasks);
 
 // Obtener una tarea por id
-taskRouter.get("/:id", /* controlador */);
+taskRouter.get("/:id", getTaskById);
 
 // Actualizar una tarea
-taskRouter.put("/:id", /* controlador */);
+taskRouter.put("/:id", updateTask);
 
 // Eliminar una tarea
-taskRouter.delete("/:id", /* controlador */);
+taskRouter.delete("/:id", deleteTask);
 
 export default taskRouter;

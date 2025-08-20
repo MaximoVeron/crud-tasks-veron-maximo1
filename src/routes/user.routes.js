@@ -1,19 +1,29 @@
 import { Router } from "express";
+import {
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser
+} from "../controllers/user.controllers.js";
+
 const userRouter = Router();
 
 // Crear un usuario
-userRouter.post("/", /* controlador */);
+userRouter.post("/", createUser);
 
-// Obtener todas las tareas
-userRouter.get("/", /* controlador */);
+// Obtener todos los usuarios
+userRouter.get("/", getAllUsers);
 
-// Obtener una tarea por id
-userRouter.get("/:id", /* controlador */);
+// Obtener un usuario por id
+userRouter.get("/:id", getUserById);
 
 // Actualizar una tarea
-userRouter.put("/:id", /* controlador */);
+userRouter.put("/api/users/:id", updateUser);
 
 // Eliminar una tarea
-userRouter.delete("/:id", /* controlador */);
+userRouter.delete("/api/users/:id", deleteUser);
+
+
 
 export default userRouter;

@@ -1,9 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
 import { initDB } from "./src/config/database.js";
+import userRouter from "./src/routes/user.routes.js";
+import taskRouter from "./src/routes/taks.routes.js";
 dotenv.config();
 const app = express();
 app.use(express.json());
+app.use("/api/users", userRouter);
+app.use("/api/tasks", taskRouter);
 export const PORT = process.env.PORT;
 app.get("/", (req,res) => {
     res.send("Hola mundo");

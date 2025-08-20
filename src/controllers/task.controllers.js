@@ -1,5 +1,65 @@
 import Task from "../models/task.models.js";
 
+// Funciones de validación reutilizables para tareas
+function validateTitle(title) {
+  if (!title || typeof title !== "string" || title.trim() === "" || title.length > 100) {
+    return "El título es obligatorio, debe ser una cadena y máximo 100 caracteres.";
+  }
+  return null;
+}
+
+async function validateUniqueTitle(title, TaskModel, taskId = null) {
+  // Si es update, ignorar la tarea actual
+  const where = taskId ? { title, id: { [TaskModel.Sequelize.Op.ne]: taskId } } : { title };
+  const existingTask = await TaskModel.findOne({ where });
+  if (existingTask) {
+    return "El título debe ser único.";
+  }
+  return null;
+}
+
+function validateDescription(description) {
+  if (!description || typeof description !== "string" || description.trim() === "" || description.length > 100) {
+    return "La descripción es obligatoria, debe ser una cadena y máximo 100 caracteres.";
+  }
+  return null;
+}
+
+function validateIsComplete(isComplete) {
+  if (typeof isComplete !== "boolean") {
+    return "isComplete debe ser un valor booleano.";
+  }
+  return null;
+}
+
+// Crear una tarea
+export const createTask = async (req, res) => {
+  const { title, description, isComplete } = req.body;
+
+  // Validar title
+  const titleError = validateTitle(title);
+  if (titleError) return res.status(400).json({ error: titleError });
+
+  // Validar unicidad de title
+  const uniqueTitleError = await validateUniqueTitle(title, Task);
+  if (uniqueTitleError) return res.status(400).json({ error: uniqueTitleError });
+
+  // Validar description
+  const descError = validateDescription(description);
+  if (descError) return res.status(400).json({ error: descError });
+
+  // Validar isComplete
+  const isCompleteError = validateIsComplete(isComplete);
+  if (isCompleteError) return res.status(400).json({ error: isCompleteError });
+
+  try {
+    const newTask = await Task.create({ title, description, isComplete });
+    res.status(201).json({ message: "Tarea creada correctamente", task: newTask });
+  } catch (error) {
+    res.status(500).json({ error: "Error al crear la tarea" });
+  }
+};
+
 // Obtener todas las tareas
 export const getAllTasks = async (req, res) => {
   try {
@@ -29,6 +89,19 @@ export const updateTask = async (req, res) => {
   try {
     const task = await Task.findByPk(id);
     if (!task) return res.status(404).json({ error: "Tarea no encontrada" });
+
+    // Validaciones reutilizables
+    const titleError = validateTitle(title);
+    if (titleError) return res.status(400).json({ error: titleError });
+
+    const uniqueTitleError = await validateUniqueTitle(title, Task, id);
+    if (uniqueTitleError) return res.status(400).json({ error: uniqueTitleError });
+
+    const descError = validateDescription(description);
+    if (descError) return res.status(400).json({ error: descError });
+
+    const isCompleteError = validateIsComplete(isComplete);
+    if (isCompleteError) return res.status(400).json({ error: isCompleteError });
 
     await task.update({ title, description, isComplete });
     res.status(200).json({ message: "Tarea actualizada correctamente", task });
