@@ -1,4 +1,4 @@
-import { Task, User } from "../models/associations.js";
+import { Task, User, Category } from "../models/associations.js";
 
 // Funciones de validación reutilizables para tareas
 function validateTitle(title) {
@@ -32,10 +32,21 @@ function validateIsComplete(isComplete) {
   return null;
 }
 
+function validateUserId(userId) {
+  if (!userId || typeof userId !== "number" || userId <= 0) {
+    return "El userId es obligatorio y debe ser un número válido mayor a 0.";
+  }
+  return null;
+}
+
 // Crear una tarea
 export const createTask = async (req, res) => {
   try {
     const { title, description, isComplete, userId } = req.body;
+
+    // Validar userId primero
+    const userIdError = validateUserId(userId);
+    if (userIdError) return res.status(400).json({ error: userIdError });
 
     // Validar title
     const titleError = validateTitle(title);
@@ -54,10 +65,6 @@ export const createTask = async (req, res) => {
     if (isCompleteError) return res.status(400).json({ error: isCompleteError });
 
     // Validar que el usuario exista
-    if (!userId) {
-      return res.status(400).json({ error: "El userId es obligatorio" });
-    }
-
     const userExists = await User.findByPk(userId);
     if (!userExists) {
       return res.status(404).json({ error: "El usuario no existe" });
@@ -80,11 +87,18 @@ export const createTask = async (req, res) => {
 export const getAllTasks = async (req, res) => {
   try {
     const tasks = await Task.findAll({
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: ['id', 'name', 'email']
-      }]
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: Category,
+          as: 'categories',
+          attributes: ['id', 'name', 'description', 'color_code']
+        }
+      ]
     });
     res.status(200).json(tasks);
   } catch (error) {
@@ -97,11 +111,18 @@ export const getTaskById = async (req, res) => {
   try {
     const { id } = req.params;
     const task = await Task.findByPk(id, {
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: ['id', 'name', 'email']
-      }]
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: Category,
+          as: 'categories',
+          attributes: ['id', 'name', 'description', 'color_code']
+        }
+      ]
     });
     if (!task) return res.status(404).json({ error: "Tarea no encontrada" });
     res.status(200).json(task);

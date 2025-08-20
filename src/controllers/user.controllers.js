@@ -1,4 +1,4 @@
-import { User, Task } from "../models/associations.js";
+import { User, Task, UserProfile } from "../models/associations.js";
 
 // Funciones de validación
 function validateName(name) {
@@ -31,11 +31,18 @@ function validatePassword(password) {
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      include: [{
-        model: Task,
-        as: 'tasks',
-        attributes: ['id', 'title', 'description', 'is_complete']
-      }]
+      include: [
+        {
+          model: Task,
+          as: 'tasks',
+          attributes: ['id', 'title', 'description', 'is_complete']
+        },
+        {
+          model: UserProfile,
+          as: 'profile',
+          attributes: ['bio', 'phone_number', 'date_of_birth', 'profile_picture_url']
+        }
+      ]
     });
     res.status(200).json(users);
   } catch (error) {
@@ -48,11 +55,18 @@ export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByPk(id, {
-      include: [{
-        model: Task,
-        as: 'tasks',
-        attributes: ['id', 'title', 'description', 'is_complete']
-      }]
+      include: [
+        {
+          model: Task,
+          as: 'tasks',
+          attributes: ['id', 'title', 'description', 'is_complete']
+        },
+        {
+          model: UserProfile,
+          as: 'profile',
+          attributes: ['bio', 'phone_number', 'date_of_birth', 'profile_picture_url']
+        }
+      ]
     });
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
     res.status(200).json(user);
