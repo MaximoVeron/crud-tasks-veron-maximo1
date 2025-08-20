@@ -28,3 +28,5 @@ const User = sequelize.define(
     // Other model options go here
   },
 );
+
+export default User;
