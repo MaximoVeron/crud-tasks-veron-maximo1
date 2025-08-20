@@ -1,4 +1,4 @@
-import Task from "../models/task.models.js";
+import { Task, User } from "../models/associations.js";
 
 // Funciones de validación reutilizables para tareas
 function validateTitle(title) {
@@ -34,26 +34,42 @@ function validateIsComplete(isComplete) {
 
 // Crear una tarea
 export const createTask = async (req, res) => {
-  const { title, description, isComplete } = req.body;
-
-  // Validar title
-  const titleError = validateTitle(title);
-  if (titleError) return res.status(400).json({ error: titleError });
-
-  // Validar unicidad de title
-  const uniqueTitleError = await validateUniqueTitle(title, Task);
-  if (uniqueTitleError) return res.status(400).json({ error: uniqueTitleError });
-
-  // Validar description
-  const descError = validateDescription(description);
-  if (descError) return res.status(400).json({ error: descError });
-
-  // Validar isComplete
-  const isCompleteError = validateIsComplete(isComplete);
-  if (isCompleteError) return res.status(400).json({ error: isCompleteError });
-
   try {
-    const newTask = await Task.create({ title, description, isComplete });
+    const { title, description, isComplete, userId } = req.body;
+
+    // Validar title
+    const titleError = validateTitle(title);
+    if (titleError) return res.status(400).json({ error: titleError });
+
+    // Validar unicidad de title
+    const uniqueTitleError = await validateUniqueTitle(title, Task);
+    if (uniqueTitleError) return res.status(400).json({ error: uniqueTitleError });
+
+    // Validar description
+    const descError = validateDescription(description);
+    if (descError) return res.status(400).json({ error: descError });
+
+    // Validar isComplete
+    const isCompleteError = validateIsComplete(isComplete);
+    if (isCompleteError) return res.status(400).json({ error: isCompleteError });
+
+    // Validar que el usuario exista
+    if (!userId) {
+      return res.status(400).json({ error: "El userId es obligatorio" });
+    }
+
+    const userExists = await User.findByPk(userId);
+    if (!userExists) {
+      return res.status(404).json({ error: "El usuario no existe" });
+    }
+
+    const newTask = await Task.create({ 
+      title, 
+      description, 
+      is_complete: isComplete, 
+      userId 
+    });
+    
     res.status(201).json({ message: "Tarea creada correctamente", task: newTask });
   } catch (error) {
     res.status(500).json({ error: "Error al crear la tarea" });
@@ -63,7 +79,13 @@ export const createTask = async (req, res) => {
 // Obtener todas las tareas
 export const getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.findAll();
+    const tasks = await Task.findAll({
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name', 'email']
+      }]
+    });
     res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener las tareas" });
@@ -72,9 +94,15 @@ export const getAllTasks = async (req, res) => {
 
 // Obtener una tarea por id
 export const getTaskById = async (req, res) => {
-  const { id } = req.params;
   try {
-    const task = await Task.findByPk(id);
+    const { id } = req.params;
+    const task = await Task.findByPk(id, {
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name', 'email']
+      }]
+    });
     if (!task) return res.status(404).json({ error: "Tarea no encontrada" });
     res.status(200).json(task);
   } catch (error) {

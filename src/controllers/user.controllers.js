@@ -1,4 +1,4 @@
-import User from "../models/user.models.js";
+import { User, Task } from "../models/associations.js";
 
 // Funciones de validación
 function validateName(name) {
@@ -30,7 +30,13 @@ function validatePassword(password) {
 // Obtener todos los usuarios
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll();
+    const users = await User.findAll({
+      include: [{
+        model: Task,
+        as: 'tasks',
+        attributes: ['id', 'title', 'description', 'is_complete']
+      }]
+    });
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener los usuarios" });
@@ -39,9 +45,15 @@ export const getAllUsers = async (req, res) => {
 
 // Obtener un usuario por id
 export const getUserById = async (req, res) => {
-  const { id } = req.params;
   try {
-    const user = await User.findByPk(id);
+    const { id } = req.params;
+    const user = await User.findByPk(id, {
+      include: [{
+        model: Task,
+        as: 'tasks',
+        attributes: ['id', 'title', 'description', 'is_complete']
+      }]
+    });
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
     res.status(200).json(user);
   } catch (error) {

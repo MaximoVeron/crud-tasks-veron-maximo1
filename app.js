@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import { initDB } from "./src/config/database.js";
+import "./src/models/associations.js"; // Importar las relaciones
 import userRouter from "./src/routes/user.routes.js";
 import taskRouter from "./src/routes/taks.routes.js";
 dotenv.config();

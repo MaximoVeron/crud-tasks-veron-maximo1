@@ -16,6 +16,14 @@ const Task = sequelize.define(
     is_complete: {
         type:DataTypes.BOOLEAN,
         defaultValue: false,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id'
+      }
     }
   },
   {
