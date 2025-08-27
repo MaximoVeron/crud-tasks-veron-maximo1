@@ -1,6 +1,8 @@
 import { sequelize } from "../config/database.js";
 import { DataTypes } from "sequelize";
 
+
+
 const Category = sequelize.define(
   'categories',
   {
@@ -18,15 +20,21 @@ const Category = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true
     },
-    color_code: {
-      type: DataTypes.STRING(7), // Para códigos hex como #FF0000
-      allowNull: true,
-      defaultValue: '#808080'
+    is_deleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   },
   {
     tableName: 'categories',
-    underscored: true
+    underscored: true,
+    defaultScope: {
+      where: { is_deleted: false }
+    },
+    scopes: {
+      all: { where: {} }
+    }
   }
 );
 

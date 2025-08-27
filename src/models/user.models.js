@@ -5,11 +5,6 @@ const User = sequelize.define(
   'user',
   {
     // Model attributes are defined here
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
     name: {
       type: DataTypes.STRING(100),
       allowNull: false,

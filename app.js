@@ -10,23 +10,25 @@ import taskCategoryRouter from "./src/routes/task_category.routes.js";
 dotenv.config();
 const app = express();
 app.use(express.json());
+
+
+
 app.use("/api/users", userRouter);
 app.use("/api/tasks", taskRouter);
 app.use("/api/user-profiles", userProfileRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/task-categories", taskCategoryRouter);
-export const PORT = process.env.PORT;
+
 app.get("/", (req,res) => {
     res.send("Hola mundo");
 });
 
-app.listen(PORT, ()=> {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
-})
+export const PORT = process.env.PORT || 3000;
 
-initDB()
-// .then(() =>{
-//     app.listen(PORT, ()=> {
-//         console.log(`Servidor corriendo en el puerto ${PORT}`);
-//     });
-// })
+initDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Servidor corriendo en el puerto ${PORT}`);
+    });
+}).catch(error => {
+    console.error('Error al inicializar la base de datos:', error);
+});
