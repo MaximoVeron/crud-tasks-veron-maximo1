@@ -10,7 +10,7 @@ function validateTitle(title) {
 
 async function validateUniqueTitle(title, TaskModel, taskId = null) {
   // Si es update, ignorar la tarea actual
-  const where = taskId ? { title, id: { [TaskModel.Sequelize.Op.ne]: taskId } } : { title };
+  const where = taskId ? { title, id: { [TaskModel.sequelize.Op.ne]: taskId } } : { title };
   const existingTask = await TaskModel.findOne({ where });
   if (existingTask) {
     return "El título debe ser único.";
@@ -152,7 +152,7 @@ export const updateTask = async (req, res) => {
     const isCompleteError = validateIsComplete(isComplete);
     if (isCompleteError) return res.status(400).json({ error: isCompleteError });
 
-    await task.update({ title, description, isComplete });
+    await task.update({ title, description, is_complete: isComplete });
     res.status(200).json({ message: "Tarea actualizada correctamente", task });
   } catch (error) {
     res.status(500).json({ error: "Error al actualizar la tarea" });

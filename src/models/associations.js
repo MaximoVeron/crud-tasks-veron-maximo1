@@ -22,12 +22,16 @@ Task.belongsTo(User, {
 // Relaciones 1:1 (Un usuario tiene un perfil)
 User.hasOne(UserProfile, {
   foreignKey: 'user_id',
-  as: 'profile'
+  as: 'profile',
+  onDelete: 'CASCADE',
+  hooks: true
 });
 
 UserProfile.belongsTo(User, {
   foreignKey: 'user_id',
-  as: 'user'
+  as: 'user',
+  onDelete: 'CASCADE',
+  hooks: true
 });
 
 // Relaciones M:N (Tareas pueden tener muchas categorías y viceversa)

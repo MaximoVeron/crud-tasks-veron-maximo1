@@ -18,12 +18,10 @@ userRouter.get("/", getAllUsers);
 // Obtener un usuario por id
 userRouter.get("/:id", getUserById);
 
-// Actualizar una tarea
-userRouter.put("/api/users/:id", updateUser);
+// Actualizar un usuario
+userRouter.put("/:id", updateUser);
 
-// Eliminar una tarea
-userRouter.delete("/api/users/:id", deleteUser);
-
-
+// Eliminar un usuario
+userRouter.delete("/:id", deleteUser);
 
 export default userRouter;

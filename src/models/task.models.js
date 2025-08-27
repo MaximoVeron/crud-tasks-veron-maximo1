@@ -1,21 +1,26 @@
 import { sequelize } from "../config/database.js";
 import { DataTypes } from "sequelize";
 
+
 const Task = sequelize.define(
   'tasks',
   {
-    // Model attributes are defined here
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     description: {
       type: DataTypes.STRING,
-      // allowNull defaults to true
+      allowNull: true
     },
     is_complete: {
-        type:DataTypes.BOOLEAN,
-        defaultValue: false,
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
     userId: {
       type: DataTypes.INTEGER,
@@ -27,8 +32,9 @@ const Task = sequelize.define(
     }
   },
   {
-    // Other model options go here
-  },
+    tableName: 'tasks',
+    underscored: true
+  }
 );
 
 export default Task;

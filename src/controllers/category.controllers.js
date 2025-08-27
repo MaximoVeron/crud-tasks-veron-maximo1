@@ -101,3 +101,73 @@ export const getAllCategories = async (req, res) => {
     res.status(500).json({ error: "Error al obtener las categorías" });
   }
 };
+
+// Obtener una categoría por ID
+export const getCategoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const category = await Category.findByPk(id, {
+      include: [{
+        model: Task,
+        as: 'tasks',
+        attributes: ['id', 'title', 'description', 'is_complete'],
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        }]
+      }]
+    });
+    if (!category) {
+      return res.status(404).json({ error: 'Categoría no encontrada' });
+    }
+    res.status(200).json(category);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener la categoría' });
+  }
+};
+
+// Actualizar una categoría
+export const updateCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, color_code } = req.body;
+    
+    const category = await Category.scope('all').findByPk(id);
+    if (!category) {
+      return res.status(404).json({ error: 'Categoría no encontrada' });
+    }
+    if (category.is_deleted) {
+      return res.status(400).json({ error: 'No se puede actualizar una categoría eliminada' });
+    }
+
+    // Validar name si se proporciona
+    if (name) {
+      const nameError = validateName(name);
+      if (nameError) return res.status(400).json({ error: nameError });
+      
+      // Validar unicidad del nombre si es diferente al actual
+      if (name !== category.name) {
+        const uniqueNameError = await validateUniqueName(name, Category);
+        if (uniqueNameError) return res.status(400).json({ error: uniqueNameError });
+      }
+    }
+
+    // Validar description si se proporciona
+    if (description !== undefined) {
+      const descError = validateDescription(description);
+      if (descError) return res.status(400).json({ error: descError });
+    }
+
+    // Validar color_code si se proporciona
+    if (color_code) {
+      const colorError = validateColorCode(color_code);
+      if (colorError) return res.status(400).json({ error: colorError });
+    }
+
+    await category.update({ name, description, color_code });
+    res.status(200).json({ message: 'Categoría actualizada correctamente', category });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar la categoría' });
+  }
+};

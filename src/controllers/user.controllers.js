@@ -1,6 +1,7 @@
 import { User, Task, UserProfile } from "../models/associations.js";
 
-// Funciones de validación
+
+
 function validateName(name) {
   if (!name || typeof name !== "string" || name.trim() === "" || name.length > 100) {
     return "El nombre es obligatorio, debe ser una cadena y máximo 100 caracteres.";
@@ -52,8 +53,8 @@ export const getAllUsers = async (req, res) => {
 
 // Obtener un usuario por id
 export const getUserById = async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
     const user = await User.findByPk(id, {
       include: [
         {
@@ -80,8 +81,24 @@ export const updateUser = async (req, res) => {
   const { id } = req.params;
   const { name, email, password } = req.body;
   try {
-    const user = await Task.findByPk(id);
+    const user = await User.findByPk(id);
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    // Validar name
+    if (name) {
+      const nameError = validateName(name);
+      if (nameError) return res.status(400).json({ error: nameError });
+    }
+    // Validar email (incluye unicidad)
+    if (email && email !== user.email) {
+      const emailError = await validateEmail(email, User);
+      if (emailError) return res.status(400).json({ error: emailError });
+    }
+    // Validar password
+    if (password) {
+      const passwordError = validatePassword(password);
+      if (passwordError) return res.status(400).json({ error: passwordError });
+    }
 
     await user.update({ name, email, password });
     res.status(200).json({ message: "Usuario actualizado correctamente", user });
