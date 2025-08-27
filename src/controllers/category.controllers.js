@@ -1,3 +1,21 @@
+// Eliminación lógica de una categoría
+export const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const category = await Category.scope('all').findByPk(id);
+    if (!category) {
+      return res.status(404).json({ error: 'Categoría no encontrada' });
+    }
+    if (category.is_deleted) {
+      return res.status(400).json({ error: 'La categoría ya está eliminada' });
+    }
+    category.is_deleted = true;
+    await category.save();
+    res.status(200).json({ message: 'Categoría eliminada lógicamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar la categoría' });
+  }
+};
 import { Category, Task, User } from "../models/associations.js";
 
 // Funciones de validación para Category

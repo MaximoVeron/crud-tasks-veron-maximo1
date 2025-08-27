@@ -1,8 +1,11 @@
 import { Router } from "express";
 import {
   createCategory,
-  getAllCategories
+  getAllCategories,
+  deleteCategory
 } from "../controllers/category.controllers.js";
+// Eliminar lógicamente una categoría
+categoryRouter.delete('/:id', deleteCategory);
 
 const categoryRouter = Router();
 
